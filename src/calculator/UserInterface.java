@@ -9,6 +9,7 @@ import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import calculator.BusinessLogic;
+import javafx.scene.text.Text;
 
 /**
  * <p> Title: UserInterface Class. </p>
@@ -39,18 +40,23 @@ public class UserInterface {
 	private final double BUTTON_OFFSET = BUTTON_WIDTH / 2;
 
 	// These are the application values required by the user interface
-	private Label label_IntegerCalculator = new Label("Integer Calculator");
+	private Label label_IntegerCalculator = new Label("ZCalculator");
 	private Label label_Operand1 = new Label("First operand");
 	private TextField text_Operand1 = new TextField();
 	private Label label_Operand2 = new Label("Second operand");
 	private TextField text_Operand2 = new TextField();
 	private Label label_Result = new Label("Result");
 	private TextField text_Result = new TextField();
+
 	private Button button_Add = new Button("+");
 	private Button button_Sub = new Button("-");
 	private Button button_Mpy = new Button("×");				// The multiply symbol: \u00D7
 	private Button button_Div = new Button("÷");				// The divide symbol: \u00F7
-	private Label label_errOperand1 = new Label("");
+	private Button button_Sqrt = new Button("\u221a");
+	private Button button_Clr = new Button("CLR");
+	private Button button_MoveToFirst = new Button("Move to First");
+
+    private Label label_errOperand1 = new Label("");
 	private Label label_errOperand2 = new Label("");
 	private Label label_errResult = new Label("");
 	// If the multiplication and/or division symbols do not display properly, replace the 
@@ -77,7 +83,7 @@ public class UserInterface {
 	public UserInterface(Pane theRoot) {
 				
 		// There are five gaps. Compute the button space accordingly.
-		buttonSpace = Calculator.WINDOW_WIDTH / 5;
+		buttonSpace = Calculator.WINDOW_WIDTH / 7;
 		
 		// Label theScene with the name of the calculator, centered at the top of the pane
 		setupLabelUI(label_IntegerCalculator, "Arial", 24, Calculator.WINDOW_WIDTH, Pos.CENTER, 0, 10);
@@ -88,12 +94,15 @@ public class UserInterface {
 		// Establish the first text input operand field and when anything changes in operand 1,
 		// process both fields to ensure that we are ready to perform as soon as possible.
 		setupTextUI(text_Operand1, "Arial", 18, Calculator.WINDOW_WIDTH-20, Pos.BASELINE_LEFT, 10, 70, true);
-		text_Operand1.textProperty().addListener((observable, oldValue, newValue) -> {setOperand1(); });
+		text_Operand1.textProperty().addListener((observable, oldValue, newValue) -> {
+		    setOperand1();
+		    enableButtonsIfDisabled();
+		});
 		// Move focus to the second operand when the user presses the enter (return) key
 		text_Operand1.setOnAction((event) -> { text_Operand2.requestFocus(); });
 		
 		// Establish an error message for the first operand just above it with, left aligned
-		setupLabelUI(label_errOperand1, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 400, 45);
+		setupLabelUI(label_errOperand1, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, 105);
 		label_errOperand1.setTextFill(Color.RED);
 		
 		// Label the second operand just above it, left aligned
@@ -102,12 +111,15 @@ public class UserInterface {
 		// Establish the second text input operand field and when anything changes in operand 2,
 		// process both fields to ensure that we are ready to perform as soon as possible.
 		setupTextUI(text_Operand2, "Arial", 18, Calculator.WINDOW_WIDTH-20, Pos.BASELINE_LEFT, 10, 160, true);
-		text_Operand2.textProperty().addListener((observable, oldValue, newValue) -> {setOperand2(); });
+		text_Operand2.textProperty().addListener((observable, oldValue, newValue) -> {
+		    setOperand2();
+            enableButtonsIfDisabled();
+		});
 		// Move the focus to the result when the user presses the enter (return) key
 		text_Operand2.setOnAction((event) -> { text_Result.requestFocus(); });
 		
 		// Establish an error message for the second operand just above it with, left aligned
-		setupLabelUI(label_errOperand2, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 400, 135);
+		setupLabelUI(label_errOperand2, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, 195);
 		label_errOperand2.setTextFill(Color.RED);
 		
 		// Label the result just above the result output field, left aligned
@@ -124,26 +136,129 @@ public class UserInterface {
 		// Establish the ADD "+" button, position it, and link it to methods to accomplish its work
 		setupButtonUI(button_Add, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 1 * buttonSpace-BUTTON_OFFSET, 300);
 		button_Add.setOnAction((event) -> { addOperands(); });
+		button_Add.setDisable(true);    // Start off with button disabled.
 		
 		// Establish the SUB "-" button, position it, and link it to methods to accomplish its work
 		setupButtonUI(button_Sub, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 2 * buttonSpace-BUTTON_OFFSET, 300);
 		button_Sub.setOnAction((event) -> { subOperands(); });
+        button_Sub.setDisable(true);    // Start off with button disabled.
 		
 		// Establish the MPY "x" button, position it, and link it to methods to accomplish its work
 		setupButtonUI(button_Mpy, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 3 * buttonSpace-BUTTON_OFFSET, 300);
 		button_Mpy.setOnAction((event) -> { mpyOperands(); });
+        button_Mpy.setDisable(true);    // Start off with button disabled.
 		
 		// Establish the DIV "/" button, position it, and link it to methods to accomplish its work
 		setupButtonUI(button_Div, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 4 * buttonSpace-BUTTON_OFFSET, 300);
 		button_Div.setOnAction((event) -> { divOperands(); });
+        button_Div.setDisable(true);    // Start off with button disabled.
+
+        // Establish the SQRT button, position it, and link it to methods to accomplish its work
+        setupButtonUI(button_Sqrt, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 5 * buttonSpace-BUTTON_OFFSET, 300);
+        button_Sqrt.setOnAction((event) -> { sqrtOperands(); });
+        button_Sqrt.setDisable(true);    // Start off with button disabled.
+
+        // Establish the CLR button, position it, and link it to methods to accomplish its work
+        setupButtonUI(button_Clr, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 6 * buttonSpace-BUTTON_OFFSET, 300);
+        button_Clr.setOnAction((event) -> { clearAll(); });
+        button_Clr.setDisable(true);    // Start off with button disabled.
+
+        // Establish the CLR button, position it, and link it to methods to accomplish its work
+        setupButtonUI(button_MoveToFirst, "Symbol", 14, BUTTON_WIDTH, Pos.BASELINE_LEFT, 160, 130);
+        button_MoveToFirst.setOnAction((event) -> { moveSecondToFirst(); });
+        button_MoveToFirst.setDisable(true);    // Start off with button disabled.
 		
 		// Place all of the just-initialized GUI elements into the pane
 		theRoot.getChildren().addAll(label_IntegerCalculator, label_Operand1, text_Operand1, label_errOperand1, 
 				label_Operand2, text_Operand2, label_errOperand2, label_Result, text_Result, label_errResult, 
-				button_Add, button_Sub, button_Mpy, button_Div);
+				button_Add, button_Sub, button_Mpy, button_Div, button_Sqrt, button_Clr, button_MoveToFirst);
 
 	}
-	
+
+    /**********
+     * Private local method to enable the five(?) buttons if they are disabled.
+     */
+	private void enableButtonsIfDisabled() {
+        String one = text_Operand1.getText(),
+                two = text_Operand2.getText();
+
+        /*
+         * A bit of a special case. If there is nothing in the second operand text bar,
+         * then enabling this button makes no sense.
+         */
+        if (!two.isEmpty()) {
+            if (button_MoveToFirst.isDisabled())
+                button_MoveToFirst.setDisable(false);
+        } else {
+            if (!button_MoveToFirst.isDisabled())
+                button_MoveToFirst.setDisable(true);
+        }
+
+        if (!one.isEmpty() || !two.isEmpty()) {
+            /*
+             * If either of the text boxes has something in it, then enable all disabled buttons.
+             */
+            if (button_Add.isDisabled())
+                button_Add.setDisable(false);
+
+            if (button_Sub.isDisabled())
+                button_Sub.setDisable(false);
+
+            if (button_Mpy.isDisabled())
+                button_Mpy.setDisable(false);
+
+            if (button_Div.isDisabled())
+                button_Div.setDisable(false);
+
+            if (button_Sqrt.isDisabled())
+                button_Sqrt.setDisable(false);
+
+            if(button_Clr.isDisabled())
+                button_Clr.setDisable(false);
+        } else {
+            /*
+             * Otherwise, disable all enabled buttons.
+             */
+            if (!button_Add.isDisabled())
+                button_Add.setDisable(true);
+
+            if (!button_Sub.isDisabled())
+                button_Sub.setDisable(true);
+
+            if (!button_Mpy.isDisabled())
+                button_Mpy.setDisable(true);
+
+            if (!button_Div.isDisabled())
+                button_Div.setDisable(true);
+
+            if (!button_Sqrt.isDisabled())
+                button_Sqrt.setDisable(true);
+
+            if(!button_Clr.isDisabled())
+                button_Clr.setDisable(true);
+        }
+    }
+
+    /**********
+     * Private local method to clear all text fields.
+     */
+    private void clearAll() {
+        text_Operand1.setText("");
+        text_Operand2.setText("");
+        text_Result.setText("");
+        label_errOperand1.setText("");
+        label_errOperand2.setText("");
+        label_errResult.setText("");
+    }
+
+    /**********
+     * Private local method to move contents of second text box to first.
+     */
+    private void moveSecondToFirst() {
+        text_Operand1.setText(text_Operand2.getText());
+        text_Operand2.setText("");
+    }
+
 	/**********
 	 * Private local method to initialize the standard fields for a label
 	 */
@@ -266,6 +381,23 @@ public class UserInterface {
 		return false;											// Signal there are no issues with the operands
 	}
 
+    private boolean unaryOperandIssues() {
+        String errorMessage1 = perform.getOperand1ErrorMessage();	// Fetch the error messages, if there are any
+        if (errorMessage1.length() > 0) {						// Check the first.  If the string is not empty
+            label_errOperand1.setText(errorMessage1);			// there's an error message, so display it.
+                return true;										// Return true when only the first has an error
+        }
+
+        // If the code reaches here, neither the first nor the second has an error condition. The following code
+        // check to see if the operands are defined.
+        if (!perform.getOperand1Defined()) {						// Check to see if the first operand is defined
+            label_errOperand1.setText("No value found");			// If not, this is an issue for a binary operator
+                return true;										// Signal there are issues
+        }
+
+        return false;											// Signal there are no issues with the operands
+    }
+
 	/*******************************************************************************************************
 	 * This portion of the class defines the actions that take place when the various calculator
 	 * buttons (add, subtract, multiply, and divide) are pressed.
@@ -363,4 +495,23 @@ public class UserInterface {
             label_errResult.setText(perform.getResultErrorMessage());
         }
 	}
+
+	private void sqrtOperands() {
+        // Validation, same as for other operations. See Addition above for detailed comments.
+        if(unaryOperandIssues())
+            return;
+
+        // Perform the op and check the result, same as for other operations.
+        String theAnswer = perform.squareRoot();
+        label_errResult.setText("");
+
+        if(theAnswer.length() > 0) {
+            text_Result.setText(theAnswer);
+            label_Result.setText("Square Root (" + text_Operand1.getText() + ")");
+        } else {
+            text_Result.setText("");
+            label_Result.setText("Result");
+            label_errResult.setText(perform.getResultErrorMessage());
+        }
+    }
 }

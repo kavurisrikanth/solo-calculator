@@ -21,8 +21,8 @@ import javafx.stage.Stage;
 
 public class Calculator extends Application {
 	
-	public final static double WINDOW_WIDTH = 600;
-	private final static double WINDOW_HEIGHT = 400;
+	public  final static double WINDOW_WIDTH  = 700;
+	private final static double WINDOW_HEIGHT = 500;
 	
 	private UserInterface theGUI;
 
@@ -38,18 +38,24 @@ public class Calculator extends Application {
 	@Override
 	public void start(Stage theStage) throws Exception {
 
+		// Label the stage (a window)
 		// Changed title
-		theStage.setTitle("Srikanth Kavuri");				// Label the stage (a window)
-		
-		Pane theRoot = new Pane();							// Create a pane within the window
-		
-		theGUI = new UserInterface(theRoot);					// Create the Graphical User Interface
-		
-		Scene theScene = new Scene(theRoot, WINDOW_WIDTH, WINDOW_HEIGHT);	// Create the scene
-		
-		theStage.setScene(theScene);							// Set the scene on the stage
-		
-		theStage.show();										// Show the stage to the user
+		theStage.setTitle("ZCalculator");
+
+        // Create a pane within the window
+		Pane theRoot = new Pane();
+
+        // Create the Graphical User Interface
+		theGUI = new UserInterface(theRoot);
+
+        // Create the scene
+		Scene theScene = new Scene(theRoot, WINDOW_WIDTH, WINDOW_HEIGHT);
+
+        // Set the scene on the stage
+		theStage.setScene(theScene);
+
+        // Show the stage to the user
+		theStage.show();
 		
 		// When the stage is shown to the user, the pane within the window is visible.  This means that the
 		// labels, fields, and buttons of the Graphical User Interface (GUI) are visible and it is now 

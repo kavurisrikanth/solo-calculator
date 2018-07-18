@@ -37,6 +37,8 @@ public class BusinessLogic {
 	private boolean operand2Defined = false;
 	private String resultErrorMessage = "";
 
+	private NumericInput operand1NumericInput = new NumericInput();
+    private NumericInput operand2NumericInput = new NumericInput();
 	/**********************************************************************************************
 
 	Constructors
@@ -72,12 +74,29 @@ public class BusinessLogic {
 			return true;									// Return saying there was no error.
 		}
 
-		operand1 = new CalculatorValue(value);			// If there was input text, try to convert it
-		operand1ErrorMessage = operand1.getErrorMessage();	// into a CalculatorValue and see if it
-		if (operand1ErrorMessage.length() > 0) 			// worked. If there is a non-empty error 
-			return false;								// message, signal there was a problem.
-		operand1Defined = true;							// Otherwise, set the defined flag and
-		return true;										// signal that the set worked
+        System.out.println("value: " + value);
+        operand1NumericInput.extendInput(value);
+        try {
+            // Try getting the final input from the FSM.
+            value = operand1NumericInput.getFinalNumber();
+
+            // If there was input text, try to convert it into a CalculatorValue and see if it
+            // worked.
+            operand1 = new CalculatorValue(value);
+            operand1ErrorMessage = operand1.getErrorMessage();
+
+            // If there is a non-empty error message, signal there was a problem.
+            // Otherwise, set the defined flag and signal that the set worked
+            if (operand1ErrorMessage.length() > 0)
+                return false;
+            operand1Defined = true;
+            return true;
+        } catch (Exception e) {
+            // If the FSM isn't in a final state, then an exception is raised. Catch it and
+            // print the error message.
+            operand1ErrorMessage = operand1NumericInput.getErrorMsg();
+            return false;
+        }
 	}
 
 	
@@ -97,12 +116,20 @@ public class BusinessLogic {
 			operand2ErrorMessage = "";
 			return true;
 		}
-		operand2 = new CalculatorValue(value);
-		operand2ErrorMessage = operand2.getErrorMessage();
-		if (operand2ErrorMessage.length() > 0)
-			return false;
-		operand2Defined = true;
-		return true;
+
+		operand2NumericInput.extendInput(value);
+		try {
+		    value = operand2NumericInput.getFinalNumber();
+            operand2 = new CalculatorValue(value);
+            operand2ErrorMessage = operand2.getErrorMessage();
+            if (operand2ErrorMessage.length() > 0)
+                return false;
+            operand2Defined = true;
+            return true;
+        } catch (Exception e) {
+            operand2ErrorMessage = operand2NumericInput.getErrorMsg();
+            return false;
+        }
 	}
 
 	
@@ -299,4 +326,15 @@ public class BusinessLogic {
             return "";
 		return result.toString();
 	}
+
+	public String squareRoot() {
+        result = new CalculatorValue(operand1);
+
+        // For now, just the square root of the first number.
+        result.sqrt();
+        resultErrorMessage = result.getErrorMessage();
+        if(resultErrorMessage.length() > 0)
+            return "";
+        return result.toString();
+    }
 }
