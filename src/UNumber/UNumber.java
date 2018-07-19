@@ -1060,6 +1060,59 @@ public class UNumber implements Comparable<UNumber> {
         for (int i = 0; i < this.d.length; i++) this.d[i] = quotient[i];
     }
 
+    public void sqrt() {
+        // We use Newton's method.
+
+        // Start with a guess that's half the number itself.
+        UNumber two = new UNumber(2),
+                guess = new UNumber(this);
+        guess.div(two);
+
+        UNumber temp = new UNumber(this),
+                guessSquared = new UNumber(guess);
+
+        guessSquared.mpy(guessSquared);
+
+        // Check if the guess is close enough to the answer
+        while (!this.closeEnough(guessSquared)) {
+            // If it isn't then make modifications according to the formula:
+            // g(n+1) = (g(n) + S/g(n))/2
+
+//            System.out.println("guess: " + guess.toString());
+            temp.div(guess);
+            guess.add(temp);
+            guess.div(two);
+
+            guessSquared = new UNumber(guess);
+            guessSquared.mpy(guessSquared);
+
+            temp = new UNumber(this);
+        }
+
+        // At this point, it's close enough. So replace this object's values with
+        // those of guess.
+        this.d = guess.d;
+        this.dP = guess.dP;
+        this.s = guess.s;
+    }
+
+    private boolean closeEnough(UNumber other) {
+        if (this.dP != other.dP)
+            return false;
+
+        if (this.s != other.s)
+            return false;
+
+        int matchDigitsTarget = (int)((95.0/100) * Math.min(this.d.length, other.d.length));
+        System.out.println("reqd match: " +matchDigitsTarget);
+        for (int i = 0; i < matchDigitsTarget; i++) {
+            if (this.d[i] != other.d[i])
+                return false;
+        }
+
+        return true;
+    }
+
     /**********
      * This lessThan routine tries to avoid doing a subtraction in order to do things faster.
      * Therefore checks of sign bits, then the decimal points, and then the first digits are done

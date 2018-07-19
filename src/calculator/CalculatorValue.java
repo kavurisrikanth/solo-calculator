@@ -284,6 +284,7 @@ public class CalculatorValue {
 
         // For now, do nothing.
 //        measuredValue =  UNumber(0);
+		measuredValue.sqrt();
 	    errorMessage = "";
     }
 }
