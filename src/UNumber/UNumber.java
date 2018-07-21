@@ -1097,20 +1097,14 @@ public class UNumber implements Comparable<UNumber> {
     }
 
     private boolean closeEnough(UNumber other) {
-        if (this.dP != other.dP)
-            return false;
+//        System.out.println("matching: " + this.toString() + " and " + other.toString());
 
-        if (this.s != other.s)
-            return false;
+        UNumber epsilon = new UNumber(0.000005);
+        UNumber temp = new UNumber(other);
 
-        int matchDigitsTarget = (int)((95.0/100) * Math.min(this.d.length, other.d.length));
-        System.out.println("reqd match: " +matchDigitsTarget);
-        for (int i = 0; i < matchDigitsTarget; i++) {
-            if (this.d[i] != other.d[i])
-                return false;
-        }
-
-        return true;
+        temp.sub(this);
+        temp.abs();
+        return temp.compareTo(epsilon) <= 0;
     }
 
     /**********

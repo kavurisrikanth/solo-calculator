@@ -67,7 +67,7 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setOperand1(String value) {
+	public boolean setOperand1(String value, Integer mass, Integer length, Integer time) {
 		operand1Defined = false;							// Assume the operand will not be defined
 		if (value.length() <= 0) {						// See if the input is empty. If so no error
 			operand1ErrorMessage = "";					// message, but the operand is not defined.
@@ -75,6 +75,9 @@ public class BusinessLogic {
 		}
 
         System.out.println("value: " + value);
+		System.out.println("mass: " + mass);
+		System.out.println("length: " + length);
+		System.out.println("time: " + time);
         operand1NumericInput.extendInput(value);
         try {
             // Try getting the final input from the FSM.
@@ -82,7 +85,7 @@ public class BusinessLogic {
 
             // If there was input text, try to convert it into a CalculatorValue and see if it
             // worked.
-            operand1 = new CalculatorValue(value);
+            operand1 = new CalculatorValue(value, (double) mass, (double) length, (double) time);
             operand1ErrorMessage = operand1.getErrorMessage();
 
             // If there is a non-empty error message, signal there was a problem.
@@ -110,7 +113,7 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setOperand2(String value) {			// The logic of this method is exactly the
+	public boolean setOperand2(String value, Integer mass, Integer length, Integer time) {			// The logic of this method is exactly the
 		operand2Defined = false;							// same as that for operand1, above.
 		if (value.length() <= 0) {
 			operand2ErrorMessage = "";
@@ -120,7 +123,7 @@ public class BusinessLogic {
 		operand2NumericInput.extendInput(value);
 		try {
 		    value = operand2NumericInput.getFinalNumber();
-            operand2 = new CalculatorValue(value);
+            operand2 = new CalculatorValue(value, (double) mass, (double) length, (double) time);
             operand2ErrorMessage = operand2.getErrorMessage();
             if (operand2ErrorMessage.length() > 0)
                 return false;

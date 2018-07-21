@@ -30,6 +30,8 @@ public class CalculatorValue {
 //    double measuredValue = 0;
     UNumber measuredValue = new UNumber(0);
 	String errorMessage = "";
+
+	Unit myUnit = new Unit();
 	
 	/**********************************************************************************************
 
@@ -124,6 +126,11 @@ public class CalculatorValue {
 	    getDoubleFromString(s);
     }
 
+    public CalculatorValue(String s, Double m, Double l, Double t) {
+	    this(s);
+	    myUnit.setAll(m, l, t);
+    }
+
 	private void getDoubleFromString(String s) {
         measuredValue = new UNumber(0);
         if (s.length() == 0) {								// If there is nothing there,
@@ -178,8 +185,12 @@ public class CalculatorValue {
 	public String getErrorMessage(){
 		return errorMessage;
 	}
-	
-	/*****
+
+    public Unit getMyUnit() {
+        return myUnit;
+    }
+
+    /*****
 	 * Set the current value of a calculator value to a specific long integer
 	 */
 //	public void setValue(long v){
@@ -246,7 +257,12 @@ public class CalculatorValue {
 	 * Since this is addition and we do not yet support units, we don't recognize any errors.
 	 */
 	public void add(CalculatorValue v) {
-		measuredValue.add(v.measuredValue) ;
+	    if(!myUnit.equals(v.getMyUnit())) {
+	        errorMessage = "***Error***: Units don't match!";
+	        return;
+        }
+
+		measuredValue.add(v.measuredValue);
 		errorMessage = "";
 	}
 
@@ -257,12 +273,18 @@ public class CalculatorValue {
 	 * @param v
 	 */
 	public void sub(CalculatorValue v) {
-		measuredValue.sub(v.measuredValue);
+        if(!myUnit.equals(v.getMyUnit())) {
+            errorMessage = "***Error***: Units don't match!";
+            return;
+        }
+
+	    measuredValue.sub(v.measuredValue);
 		errorMessage = "";
 	}
 
 	public void mpy(CalculatorValue v) {
 	    measuredValue.mpy(v.measuredValue);
+	    myUnit.mpy(v.getMyUnit());
 		errorMessage = "";
 	}
 
@@ -273,6 +295,7 @@ public class CalculatorValue {
         }
 
         measuredValue.div(v.measuredValue);
+	    myUnit.div(v.getMyUnit());
 		errorMessage = "";
 	}
 
