@@ -71,6 +71,7 @@ public class CalculatorValue {
 	public CalculatorValue(CalculatorValue v) {
 		measuredValue = v.measuredValue;
 		errorMessage = v.errorMessage;
+		myUnit = new Unit(v.getMyUnit());
 	}
 
 	/*****
@@ -80,7 +81,7 @@ public class CalculatorValue {
 	 * of an error message.
 	 */
 
-	/*
+	/*****
 	public CalculatorValue(String s) {
 		measuredValue = 0;
 		if (s.length() == 0) {								// If there is nothing there,
@@ -228,7 +229,7 @@ public class CalculatorValue {
 	 * When more complex calculator values are creating this routine will need to be updated
 	 */
 	public String toString() {
-		return measuredValue + "";
+		return measuredValue + " " + myUnit;
 	}
 	
 	/*****
@@ -257,8 +258,8 @@ public class CalculatorValue {
 	 * Since this is addition and we do not yet support units, we don't recognize any errors.
 	 */
 	public void add(CalculatorValue v) {
-	    if(!myUnit.equals(v.getMyUnit())) {
-	        errorMessage = "***Error***: Units don't match!";
+		if(!myUnit.equals(v.getMyUnit())) {
+			errorMessage = "***Error***: Units don't match!";
 	        return;
         }
 
@@ -308,6 +309,7 @@ public class CalculatorValue {
         // For now, do nothing.
 //        measuredValue =  UNumber(0);
 		measuredValue.sqrt();
+	    myUnit.sqrt();
 	    errorMessage = "";
     }
 }

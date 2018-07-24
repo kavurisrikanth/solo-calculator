@@ -15,6 +15,12 @@ public class Unit {
         this.time = time;
     }
 
+    public Unit(Unit other) {
+        this.mass = other.getMass();
+        this.length = other.getLength();
+        this.time = other.getTime();
+    }
+
     public double getMass() {
         return mass;
     }
@@ -61,9 +67,22 @@ public class Unit {
         time -= other.getTime();
     }
 
+    private void root(int n) {
+        mass /= n;
+        length /= n;
+        time /= n;
+    }
+
     public void sqrt() {
-        mass /= 2;
-        length /= 2;
-        time /= 2;
+        root(2);
+    }
+
+    @Override
+    public String toString() {
+        return mass + " " + length + " " + time + "";
+    }
+
+    public String toDebugString() {
+        return "M: " + mass + ", L: " + length + ", T: " + time;
     }
 }

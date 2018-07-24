@@ -74,10 +74,10 @@ public class BusinessLogic {
 			return true;									// Return saying there was no error.
 		}
 
+		System.out.println("1.");
         System.out.println("value: " + value);
-		System.out.println("mass: " + mass);
-		System.out.println("length: " + length);
-		System.out.println("time: " + time);
+		System.out.println("mass: " + mass + ", length: " + length + ", time: " + time);
+		System.out.println();
         operand1NumericInput.extendInput(value);
         try {
             // Try getting the final input from the FSM.
@@ -113,13 +113,18 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setOperand2(String value, Integer mass, Integer length, Integer time) {			// The logic of this method is exactly the
-		operand2Defined = false;							// same as that for operand1, above.
+	public boolean setOperand2(String value, Integer mass, Integer length, Integer time) {
+		// The logic of this method is exactly the same as that for operand1, above.
+		operand2Defined = false;
 		if (value.length() <= 0) {
 			operand2ErrorMessage = "";
 			return true;
 		}
 
+		System.out.println("2.");
+		System.out.println("value: " + value);
+		System.out.println("mass: " + mass + ", length: " + length + ", time: " + time);
+		System.out.println();
 		operand2NumericInput.extendInput(value);
 		try {
 		    value = operand2NumericInput.getFinalNumber();
@@ -299,6 +304,8 @@ public class BusinessLogic {
 		result = new CalculatorValue(operand1);
 		result.add(operand2);
 		resultErrorMessage = result.getErrorMessage();
+		if(resultErrorMessage.length() > 0)
+			return "";
 		return result.toString();
 	}
 	
@@ -311,6 +318,8 @@ public class BusinessLogic {
 		result = new CalculatorValue(operand1);
 		result.sub(operand2);
 		resultErrorMessage = result.getErrorMessage();
+		if(resultErrorMessage.length() > 0)
+			return "";
 		return result.toString();
 	}
 	
@@ -318,6 +327,8 @@ public class BusinessLogic {
 		result = new CalculatorValue(operand1);
         result.mpy(operand2);
         resultErrorMessage = result.getErrorMessage();
+		if(resultErrorMessage.length() > 0)
+			return "";
 		return result.toString();
 	}
 	

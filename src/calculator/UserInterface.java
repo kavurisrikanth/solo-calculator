@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import calculator.BusinessLogic;
 import javafx.scene.text.Text;
+import javafx.util.StringConverter;
 
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -80,23 +81,27 @@ public class UserInterface {
             operand1_LengthComboBox = new ComboBox<>(numbers),
             operand2_MassComboBox = new ComboBox<>(numbers),
             operand2_TimeComboBox = new ComboBox<>(numbers),
-            operand2_LengthComboBox = new ComboBox<>(numbers),
-            result_MassComboBox = new ComboBox<>(numbers),
-            result_TimeComboBox = new ComboBox<>(numbers),
-            result_LengthComboBox = new ComboBox<>(numbers);
+            operand2_LengthComboBox = new ComboBox<>(numbers);
 
- 	private Label operand1_MassLabel     = new Label("M"),
-            operand1_LengthLabel = new Label("L"),
-            operand1_TimeLabel   = new Label("T"),
-            operand1_UnitsLabel  = new Label("Units"),
-            operand2_MassLabel   = new Label("M"),
-            operand2_LengthLabel = new Label("L"),
-            operand2_TimeLabel   = new Label("T"),
-            operand2_UnitsLabel  = new Label("Units"),
-            result_MassLabel     = new Label("M"),
-            result_LengthLabel   = new Label("L"),
-            result_TimeLabel     = new Label("T"),
-            result_UnitsLabel  = new Label("Units");
+ 	private Label
+            operand1_MassLabel      = new Label("M"),
+            operand1_LengthLabel    = new Label("L"),
+            operand1_TimeLabel      = new Label("T"),
+            operand1_UnitsLabel     = new Label("Units"),
+            operand2_MassLabel      = new Label("M"),
+            operand2_LengthLabel    = new Label("L"),
+            operand2_TimeLabel      = new Label("T"),
+            operand2_UnitsLabel     = new Label("Units"),
+            result_MassLabel        = new Label("M"),
+            result_LengthLabel      = new Label("L"),
+            result_TimeLabel        = new Label("T"),
+            result_UnitsLabel       = new Label("Units");
+
+ 	private TextField
+            result_MassValueText   = new TextField("0"),
+            result_LengthValueText = new TextField("0"),
+            result_TimeValueText   = new TextField("0");
+
 
  	private double labelBuffer = 18;
 
@@ -133,6 +138,9 @@ public class UserInterface {
 
         // Add checkboxes here for toggling units display
 
+        // Set up string converters for combo boxes.
+        setupComboBoxes();
+
         // Setup operand 1 stuff
         setupOperand1Stuff();
 
@@ -153,10 +161,96 @@ public class UserInterface {
                 operand1_MassLabel, operand1_LengthLabel, operand1_TimeLabel, operand1_UnitsLabel,
                 operand2_MassComboBox, operand2_LengthComboBox, operand2_TimeComboBox,
                 operand2_MassLabel, operand2_LengthLabel, operand2_TimeLabel, operand2_UnitsLabel,
-                result_MassComboBox, result_LengthComboBox, result_TimeComboBox,
+                result_MassValueText, result_LengthValueText, result_TimeValueText,
                 result_MassLabel, result_LengthLabel, result_TimeLabel, result_UnitsLabel);
 
 	}
+
+	private void setupComboBoxes() {
+        operand1_MassComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+
+        operand1_LengthComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+
+        operand1_TimeComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+
+        operand2_MassComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+
+        operand2_LengthComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+
+        operand2_TimeComboBox.setConverter(new StringConverter<Integer>() {
+            @Override
+            public String toString(Integer object) {
+                if(object == null)
+                    return null;
+                return object.toString();
+            }
+
+            @Override
+            public Integer fromString(String string) {
+                return Integer.parseInt(string);
+            }
+        });
+    }
 
 	private void setupOperand1Stuff() {
 
@@ -274,13 +368,13 @@ public class UserInterface {
 
         // Setup operand 2 combo boxes and labels
         setupLabelUI(result_MassLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, textFieldWidth + labelBuffer, resultDisplayY);
-        setupComboBoxUI(result_MassComboBox, comboBoxWidth, textFieldWidth + 2 * labelBuffer, resultDisplayY, false);
+        setupTextUI(result_MassValueText, "Arial", 18, comboBoxWidth, Pos.BASELINE_LEFT, textFieldWidth + 2 * labelBuffer, resultDisplayY, false);
 
         setupLabelUI(result_LengthLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, textFieldWidth + 3 * labelBuffer + comboBoxWidth, resultDisplayY);
-        setupComboBoxUI(result_LengthComboBox, comboBoxWidth, textFieldWidth + 4 * labelBuffer + comboBoxWidth, resultDisplayY, false);
+        setupTextUI(result_LengthValueText, "Arial", 18, comboBoxWidth, Pos.BASELINE_LEFT, textFieldWidth + 4 * labelBuffer + comboBoxWidth, resultDisplayY, false);
 
         setupLabelUI(result_TimeLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, textFieldWidth + 5 * labelBuffer + 2 * comboBoxWidth, resultDisplayY);
-        setupComboBoxUI(result_TimeComboBox, comboBoxWidth, textFieldWidth + 6 * labelBuffer + 2 * comboBoxWidth, resultDisplayY, false);
+        setupTextUI(result_TimeValueText, "Arial", 18, comboBoxWidth, Pos.BASELINE_LEFT, textFieldWidth + 6 * labelBuffer + 2 * comboBoxWidth, resultDisplayY, false);
 
         double resultErrorsY = resultDisplayY + 30;
 
@@ -409,6 +503,10 @@ public class UserInterface {
         operand2_LengthComboBox.getSelectionModel().select(16);
         operand2_TimeComboBox.getSelectionModel().select(16);
 
+        result_MassValueText.setText("0");
+        result_LengthValueText.setText("0");
+        result_TimeValueText.setText("0");
+
         text_Operand1.requestFocus();
     }
 
@@ -417,7 +515,18 @@ public class UserInterface {
      */
     private void moveSecondToFirst() {
         text_Operand1.setText(text_Operand2.getText());
+        operand1_MassComboBox.getSelectionModel().select(operand2_MassComboBox.getSelectionModel().getSelectedIndex());
+        operand1_LengthComboBox.getSelectionModel().select(operand2_LengthComboBox.getSelectionModel().getSelectedIndex());
+        operand1_TimeComboBox.getSelectionModel().select(operand2_TimeComboBox.getSelectionModel().getSelectedIndex());
+
         text_Operand2.setText("");
+        operand2_MassComboBox.getSelectionModel().select(16);
+        operand2_LengthComboBox.getSelectionModel().select(16);
+        operand2_TimeComboBox.getSelectionModel().select(16);
+
+        result_MassValueText.setText("0");
+        result_LengthValueText.setText("0");
+        result_TimeValueText.setText("0");
     }
 
 	/**********
@@ -598,7 +707,17 @@ public class UserInterface {
 		String theAnswer = perform.addition();						// Call the business logic add method
 		label_errResult.setText("");									// Reset any result error messages from before
 		if (theAnswer.length() > 0) {								// Check the returned String to see if it is okay
-			text_Result.setText(theAnswer);							// If okay, display it in the result field and
+		    String[] pieces = theAnswer.split("\\s");
+		    String result = pieces[0],
+                    mass = pieces[1],
+                    length = pieces[2],
+                    time = pieces[3];
+
+			text_Result.setText(result);							// If okay, display it in the result field and
+            result_MassValueText.setText(mass);
+            result_LengthValueText.setText(length);
+            result_TimeValueText.setText(time);
+
 			label_Result.setText("Sum");								// change the title of the field to "Sum"
 		}
 		else {														// Some error occurred while doing the addition.
@@ -622,7 +741,17 @@ public class UserInterface {
 		label_errResult.setText("");
 
 		if(theAnswer.length() > 0) {
-		    text_Result.setText(theAnswer);
+            String[] pieces = theAnswer.split("\\s");
+            String result = pieces[0],
+                    mass = pieces[1],
+                    length = pieces[2],
+                    time = pieces[3];
+
+		    text_Result.setText(result);
+            result_MassValueText.setText(mass);
+            result_LengthValueText.setText(length);
+            result_TimeValueText.setText(time);
+
 		    label_Result.setText("Difference");
         } else {
 		    text_Result.setText("");
@@ -645,7 +774,17 @@ public class UserInterface {
         label_errResult.setText("");
 
         if(theAnswer.length() > 0) {
-            text_Result.setText(theAnswer);
+            String[] pieces = theAnswer.split("\\s");
+            String result = pieces[0],
+                    mass = pieces[1],
+                    length = pieces[2],
+                    time = pieces[3];
+
+            text_Result.setText(result);
+            result_MassValueText.setText(mass);
+            result_LengthValueText.setText(length);
+            result_TimeValueText.setText(time);
+
             label_Result.setText("Product");
         } else {
             text_Result.setText("");
@@ -668,7 +807,17 @@ public class UserInterface {
         label_errResult.setText("");
 
         if(theAnswer.length() > 0) {
-            text_Result.setText(theAnswer);
+            String[] pieces = theAnswer.split("\\s");
+            String result = pieces[0],
+                    mass = pieces[1],
+                    length = pieces[2],
+                    time = pieces[3];
+
+            text_Result.setText(result);
+            result_MassValueText.setText(mass);
+            result_LengthValueText.setText(length);
+            result_TimeValueText.setText(time);
+
             label_Result.setText("Quotient");
         } else {
             text_Result.setText("");
@@ -687,7 +836,17 @@ public class UserInterface {
         label_errResult.setText("");
 
         if(theAnswer.length() > 0) {
-            text_Result.setText(theAnswer);
+            String[] pieces = theAnswer.split("\\s");
+            String result = pieces[0],
+                    mass = pieces[1],
+                    length = pieces[2],
+                    time = pieces[3];
+
+            text_Result.setText(result);
+            result_MassValueText.setText(mass);
+            result_LengthValueText.setText(length);
+            result_TimeValueText.setText(time);
+
             label_Result.setText("Square Root (" + text_Operand1.getText() + ")");
         } else {
             text_Result.setText("");
