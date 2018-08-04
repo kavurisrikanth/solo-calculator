@@ -28,8 +28,7 @@ public class CalculatorValue {
 	// These are the major values that define a calculator value
 	// long measuredValue = 0;
 //    double measuredValue = 0;
-	private UNumber measuredValue = new UNumber(0),
-	                errorTerm     = new UNumber(0);
+	private UNumber measuredValue, errorTerm;
 	private String errorMessage = "";
 
 	private Unit myUnit = new Unit();
@@ -54,10 +53,22 @@ public class CalculatorValue {
 
     public CalculatorValue(double v) {
         measuredValue = new UNumber(v);
+        errorTerm     = new UNumber(0);
     }
 
     public CalculatorValue(UNumber v) {
         measuredValue = v;
+		errorTerm     = new UNumber(0);
+    }
+
+    public CalculatorValue(double v, double e) {
+        measuredValue = new UNumber(v);
+        errorTerm     = new UNumber(e);
+    }
+
+    public CalculatorValue(UNumber v, UNumber e) {
+        measuredValue = v;
+        errorTerm     = e;
     }
 
 	/*****
@@ -65,8 +76,9 @@ public class CalculatorValue {
 	 */
 	public CalculatorValue(CalculatorValue v) {
 		measuredValue = v.measuredValue;
-		errorMessage = v.errorMessage;
-		myUnit = new Unit(v.getMyUnit());
+		errorTerm     = v.errorTerm;
+		errorMessage  = v.errorMessage;
+		myUnit        = new Unit(v.getMyUnit());
 	}
 
 	/*****
@@ -118,16 +130,17 @@ public class CalculatorValue {
 	}
 	*/
 
-	public CalculatorValue(String s) {
-	    getDoubleFromString(s);
+	public CalculatorValue(String v, String e) {
+	    getMeasuredValueFromString(v);
+	    getErrorTermFromString(e);
     }
 
-    public CalculatorValue(String s, Double m, Double l, Double t) {
-	    this(s);
+    public CalculatorValue(String v, String e, Double m, Double l, Double t) {
+	    this(v, e);
 	    myUnit.setAll(m, l, t);
     }
 
-	private void getDoubleFromString(String s) {
+	private void getMeasuredValueFromString(String s) {
         measuredValue = new UNumber(0);
         if (s.length() == 0) {								// If there is nothing there,
             errorMessage = "***Error*** Input is empty";		// signal an error
@@ -167,11 +180,49 @@ public class CalculatorValue {
             measuredValue.setSign(false);					// on the state of the flag that
     }
 
-	/**********************************************************************************************
+    private void getErrorTermFromString(String s) {
+        errorTerm = new UNumber(0);
+        if (s.length() == 0) {								// If there is nothing there,
+            errorMessage = "***Error*** Input is empty";		// signal an error
+            return;
+        }
+        // If the first character is a plus sign, ignore it.
+        int start = 0;										// Start at character position zero
+        boolean negative = false;							// Assume the value is not negative
+        if (s.charAt(start) == '+')							// See if the first character is '+'
+            start++;										// If so, skip it and ignore it
 
+            // If the first character is a minus sign, skip over it, but remember it
+        else if (s.charAt(start) == '-'){					// See if the first character is '-'
+            start++;											// if so, skip it
+            negative = true;									// but do not ignore it
+        }
+
+        // See if the user-entered string can be converted into an integer value
+        Scanner tempScanner = new Scanner(s.substring(start));// Create scanner for the digits
+        if (!tempScanner.hasNextDouble()) {					// See if the next token is a valid
+            errorMessage = "***Error*** Invalid value"; 		// integer value.  If not, signal there
+            tempScanner.close();								// return a zero
+            return;
+        }
+
+        // Convert the user-entered string to a integer value and see if something else is following it
+        errorTerm = new UNumber(tempScanner.nextDouble());				// Convert the value and check to see
+        if (tempScanner.hasNext()) {							// that there is nothing else is
+            errorMessage = "***Error*** Excess data"; 		// following the value.  If so, it
+            tempScanner.close();								// is an error.  Therefore we must
+            errorTerm = new UNumber(0);								// return a zero value.
+            return;
+        }
+        tempScanner.close();
+        errorMessage = "";
+        if (negative)										// Return the proper value based
+            errorTerm.setSign(false);					// on the state of the flag that
+    }
+
+	/*
 	Getters and Setters
-	
-	**********************************************************************************************/
+	*/
 	
 	/*****
 	 * This is the start of the getters and setters
@@ -212,11 +263,9 @@ public class CalculatorValue {
 		errorMessage = v.errorMessage;
 	}
 	
-	/**********************************************************************************************
-
+	/*
 	The toString() Method
-	
-	**********************************************************************************************/
+	*/
 	
 	/*****
 	 * This is the default toString method

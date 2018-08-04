@@ -667,6 +667,7 @@ public class UserInterface {
 		label_errResult.setText("");
 		if (perform.setOperand1(
 		        text_Operand1.getText(),
+                operand1_errorTerm.getText(),
                 operand1_MassComboBox.getSelectionModel().getSelectedItem(),
                 operand1_LengthComboBox.getSelectionModel().getSelectedItem(),
                 operand1_TimeComboBox.getSelectionModel().getSelectedItem())
@@ -690,6 +691,7 @@ public class UserInterface {
 		label_errResult.setText("");
 		if (perform.setOperand2(
 		        text_Operand2.getText(),
+                operand2_errorTerm.getText(),
                 operand2_MassComboBox.getSelectionModel().getSelectedItem(),
                 operand2_LengthComboBox.getSelectionModel().getSelectedItem(),
                 operand2_TimeComboBox.getSelectionModel().getSelectedItem())

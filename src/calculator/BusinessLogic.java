@@ -39,6 +39,8 @@ public class BusinessLogic {
 
 	private NumericInput operand1NumericInput = new NumericInput();
     private NumericInput operand2NumericInput = new NumericInput();
+    private NumericInput operand1ErrorTerm    = new NumericInput();
+    private NumericInput operand2ErrorTerm    = new NumericInput();
 	/**********************************************************************************************
 
 	Constructors
@@ -67,7 +69,7 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setOperand1(String value, Integer mass, Integer length, Integer time) {
+	public boolean setOperand1(String value, String error, Integer mass, Integer length, Integer time) {
 		operand1Defined = false;							// Assume the operand will not be defined
 		if (value.length() <= 0) {						// See if the input is empty. If so no error
 			operand1ErrorMessage = "";					// message, but the operand is not defined.
@@ -79,13 +81,15 @@ public class BusinessLogic {
 		System.out.println("mass: " + mass + ", length: " + length + ", time: " + time);
 		System.out.println();
         operand1NumericInput.extendInput(value);
+        operand1ErrorTerm.extendInput(error);
         try {
             // Try getting the final input from the FSM.
             value = operand1NumericInput.getFinalNumber();
+            error = operand1ErrorTerm.getFinalNumber();
 
             // If there was input text, try to convert it into a CalculatorValue and see if it
             // worked.
-            operand1 = new CalculatorValue(value, (double) mass, (double) length, (double) time);
+            operand1 = new CalculatorValue(value, error, (double) mass, (double) length, (double) time);
             operand1ErrorMessage = operand1.getErrorMessage();
 
             // If there is a non-empty error message, signal there was a problem.
@@ -113,7 +117,7 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setOperand2(String value, Integer mass, Integer length, Integer time) {
+	public boolean setOperand2(String value, String error, Integer mass, Integer length, Integer time) {
 		// The logic of this method is exactly the same as that for operand1, above.
 		operand2Defined = false;
 		if (value.length() <= 0) {
@@ -126,9 +130,12 @@ public class BusinessLogic {
 		System.out.println("mass: " + mass + ", length: " + length + ", time: " + time);
 		System.out.println();
 		operand2NumericInput.extendInput(value);
+		operand2ErrorTerm.extendInput(error);
+
 		try {
 		    value = operand2NumericInput.getFinalNumber();
-            operand2 = new CalculatorValue(value, (double) mass, (double) length, (double) time);
+		    error = operand2ErrorTerm.getFinalNumber();
+            operand2 = new CalculatorValue(value, error, (double) mass, (double) length, (double) time);
             operand2ErrorMessage = operand2.getErrorMessage();
             if (operand2ErrorMessage.length() > 0)
                 return false;
@@ -151,12 +158,12 @@ public class BusinessLogic {
 	 * @param value
 	 * @return	True if the set did not generate an error; False if there was invalid input
 	 */
-	public boolean setResult(String value) {				// The logic of this method is similar to
+	public boolean setResult(String value, String error) {				// The logic of this method is similar to
 		if (value.length() <= 0) {						// that for operand1, above.
 			operand2ErrorMessage = "";
 			return true;
 		}
-		result = new CalculatorValue(value);
+		result = new CalculatorValue(value, error);
 		resultErrorMessage = operand2.getErrorMessage();
 		if (operand2ErrorMessage.length() > 0)
 			return false;
@@ -245,11 +252,9 @@ public class BusinessLogic {
 		return operand2Defined;
 	}
 
-	/**********************************************************************************************
-
+	/*
 	The toString() Method
-	
-	**********************************************************************************************/
+	*/
 	
 	/**********
 	 * This toString method invokes the toString method of the result type (CalculatorValue is this 
