@@ -28,16 +28,11 @@ public class CalculatorValue {
 	// These are the major values that define a calculator value
 	// long measuredValue = 0;
 //    double measuredValue = 0;
-    UNumber measuredValue = new UNumber(0);
-	String errorMessage = "";
+	private UNumber measuredValue = new UNumber(0),
+	                errorTerm     = new UNumber(0);
+	private String errorMessage = "";
 
-	Unit myUnit = new Unit();
-	
-	/**********************************************************************************************
-
-	Constructors
-	
-	**********************************************************************************************/
+	private Unit myUnit = new Unit();
 
 	/*****
 	 * This is the default constructor
@@ -76,8 +71,8 @@ public class CalculatorValue {
 
 	/*****
 	 * This constructor creates a calculator value from a string... Due to the nature
-	 * of the input, there is a high probability that the input has errors, so the 
-	 * routine returns the value with the error message value set to empty or the string 
+	 * of the input, there is a high probability that the input has errors, so the
+	 * routine returns the value with the error message value set to empty or the string
 	 * of an error message.
 	 */
 
