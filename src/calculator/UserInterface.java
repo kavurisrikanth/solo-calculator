@@ -149,6 +149,7 @@ public class UserInterface {
         setupLabelUI(label_IntegerCalculator, "Arial", 24, Calculator.WINDOW_WIDTH, Pos.CENTER, 0, theTopY);
 
         // Add checkboxes here for toggling units display
+        setupCheckBoxes();
 
         // Set up string converters for combo boxes.
         setupComboBoxes();
@@ -184,6 +185,10 @@ public class UserInterface {
 
 	}
 
+	private void setupCheckBoxes() {
+
+    }
+
 	private void setupComboBoxes() {
         operand1_MassComboBox.setConverter(new StringConverter<Integer>() {
             @Override
@@ -199,10 +204,10 @@ public class UserInterface {
             }
         });
 
-        operand1_LengthComboBox.setConverter(new StringConverter<Integer>() {
+        operand1_LengthComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -301,6 +306,10 @@ public class UserInterface {
         setupLabelUI(label_plusMinus_One, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX, op1EditablesY);
         setupTextUI(operand1_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op1EditablesY, true);
 
+        operand1_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> {
+            setOperand1();
+        });
+
         /*
          Now the units...
           */
@@ -369,6 +378,10 @@ public class UserInterface {
 
         setupLabelUI(label_plusMinus_Two, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX, op2EditablesY);
         setupTextUI(operand2_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op2EditablesY, true);
+
+        operand2_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> {
+            setOperand2();
+        });
 
         /*
          Now the units...
@@ -567,6 +580,10 @@ public class UserInterface {
         label_errOperand1.setText("");
         label_errOperand2.setText("");
         label_errResult.setText("");
+
+        operand1_errorTerm.setText("0");
+        operand2_errorTerm.setText("0");
+        result_ErrorTerm.setText("0");
 
         operand1_MassComboBox.getSelectionModel().select(16);
         operand1_LengthComboBox.getSelectionModel().select(16);
@@ -784,14 +801,17 @@ public class UserInterface {
 		if (theAnswer.length() > 0) {								// Check the returned String to see if it is okay
 		    String[] pieces = theAnswer.split("\\s");
 		    String result = pieces[0],
-                    mass = pieces[1],
-                    length = pieces[2],
-                    time = pieces[3];
+                    error = pieces[1],
+                    mass = pieces[2],
+                    length = pieces[3],
+                    time = pieces[4];
 
 			text_Result.setText(result);							// If okay, display it in the result field and
             result_MassValueText.setText(mass);
             result_LengthValueText.setText(length);
             result_TimeValueText.setText(time);
+
+            result_ErrorTerm.setText(error);
 
 			label_Result.setText("Sum");								// change the title of the field to "Sum"
 		}
@@ -818,14 +838,17 @@ public class UserInterface {
 		if(theAnswer.length() > 0) {
             String[] pieces = theAnswer.split("\\s");
             String result = pieces[0],
-                    mass = pieces[1],
-                    length = pieces[2],
-                    time = pieces[3];
+                    error = pieces[1],
+                    mass = pieces[2],
+                    length = pieces[3],
+                    time = pieces[4];
 
-		    text_Result.setText(result);
+            text_Result.setText(result);
             result_MassValueText.setText(mass);
             result_LengthValueText.setText(length);
             result_TimeValueText.setText(time);
+
+            result_ErrorTerm.setText(error);
 
 		    label_Result.setText("Difference");
         } else {
@@ -851,14 +874,17 @@ public class UserInterface {
         if(theAnswer.length() > 0) {
             String[] pieces = theAnswer.split("\\s");
             String result = pieces[0],
-                    mass = pieces[1],
-                    length = pieces[2],
-                    time = pieces[3];
+                    error = pieces[1],
+                    mass = pieces[2],
+                    length = pieces[3],
+                    time = pieces[4];
 
             text_Result.setText(result);
             result_MassValueText.setText(mass);
             result_LengthValueText.setText(length);
             result_TimeValueText.setText(time);
+
+            result_ErrorTerm.setText(error);
 
             label_Result.setText("Product");
         } else {
@@ -884,14 +910,17 @@ public class UserInterface {
         if(theAnswer.length() > 0) {
             String[] pieces = theAnswer.split("\\s");
             String result = pieces[0],
-                    mass = pieces[1],
-                    length = pieces[2],
-                    time = pieces[3];
+                    error = pieces[1],
+                    mass = pieces[2],
+                    length = pieces[3],
+                    time = pieces[4];
 
             text_Result.setText(result);
             result_MassValueText.setText(mass);
             result_LengthValueText.setText(length);
             result_TimeValueText.setText(time);
+
+            result_ErrorTerm.setText(error);
 
             label_Result.setText("Quotient");
         } else {
@@ -912,15 +941,18 @@ public class UserInterface {
 
         if(theAnswer.length() > 0) {
             String[] pieces = theAnswer.split("\\s");
-            String result = pieces[0],
-                    mass = pieces[1],
-                    length = pieces[2],
-                    time = pieces[3];
+            String result  = pieces[0],
+                    error  = pieces[1],
+                    mass   = pieces[2],
+                    length = pieces[3],
+                    time   = pieces[4];
 
             text_Result.setText(result);
             result_MassValueText.setText(mass);
             result_LengthValueText.setText(length);
             result_TimeValueText.setText(time);
+
+            result_ErrorTerm.setText(error);
 
             label_Result.setText("Square Root (" + text_Operand1.getText() + ")");
         } else {

@@ -27,8 +27,8 @@ public class CustomTests {
     @Test
     public void testAdditionWithoutUnits() {
         BusinessLogic bl = new BusinessLogic();
-        bl.setOperand1("12", 0, 0, 0);
-        bl.setOperand2("23", 0, 0, 0);
+        bl.setOperand1("12", "0", 0, 0, 0);
+        bl.setOperand2("23", "0", 0, 0, 0);
         String ans = bl.addition();
         UNumber thirtyFive = new UNumber(35);
         assertEquals(ans, thirtyFive.toString());

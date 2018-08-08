@@ -81,7 +81,7 @@ public class CalculatorValue {
 		myUnit        = new Unit(v.getMyUnit());
 	}
 
-	/*****
+	/*
 	 * This constructor creates a calculator value from a string... Due to the nature
 	 * of the input, there is a high probability that the input has errors, so the
 	 * routine returns the value with the error message value set to empty or the string
@@ -229,11 +229,11 @@ public class CalculatorValue {
 	 * 
 	 * Get the error message
 	 */
-	public String getErrorMessage(){
+    String getErrorMessage(){
 		return errorMessage;
 	}
 
-    public Unit getMyUnit() {
+    private Unit getMyUnit() {
         return myUnit;
     }
 
@@ -273,7 +273,7 @@ public class CalculatorValue {
 	 * When more complex calculator values are creating this routine will need to be updated
 	 */
 	public String toString() {
-		return measuredValue + " " + myUnit;
+		return measuredValue + " " + errorTerm + " " + myUnit;
 	}
 	
 	/*****
@@ -286,11 +286,9 @@ public class CalculatorValue {
 	}
 
 	
-	/**********************************************************************************************
-
+	/*
 	The computation methods
-	
-	**********************************************************************************************/
+	*/
 	
 
 	/*******************************************************************************************************
@@ -301,13 +299,14 @@ public class CalculatorValue {
 	 * 
 	 * Since this is addition and we do not yet support units, we don't recognize any errors.
 	 */
-	public void add(CalculatorValue v) {
+    void add(CalculatorValue v) {
 		if(!myUnit.equals(v.getMyUnit())) {
 			errorMessage = "***Error***: Units don't match!";
 	        return;
         }
 
 		measuredValue.add(v.measuredValue);
+		errorTerm.add(v.errorTerm);
 		errorMessage = "";
 	}
 
@@ -315,25 +314,54 @@ public class CalculatorValue {
 	 * The following methods have not been implemented.  The code here is just a stub to allow the code to
 	 * properly compile and run.
 	 * 
-	 * @param v
+	 * @param v Other CalculatorValue
 	 */
-	public void sub(CalculatorValue v) {
+    void sub(CalculatorValue v) {
         if(!myUnit.equals(v.getMyUnit())) {
             errorMessage = "***Error***: Units don't match!";
             return;
         }
 
 	    measuredValue.sub(v.measuredValue);
+        errorTerm.add(v.errorTerm);
 		errorMessage = "";
 	}
 
-	public void mpy(CalculatorValue v) {
+	void mpy(CalculatorValue v) {
 	    measuredValue.mpy(v.measuredValue);
 	    myUnit.mpy(v.getMyUnit());
+
+	    // Calculate the error term product.
+	    UNumber v1mv = new UNumber(this.measuredValue),
+                v1et = new UNumber(this.errorTerm),
+                v2mv = new UNumber(v.measuredValue),
+                v2et = new UNumber(v.errorTerm);
+
+        v1mv.abs();
+
+        // v1et now contains the v1 error fraction...
+	    v1et.div(v1mv);
+
+        v2mv.abs();
+
+        // ... and so does v2et
+        v2et.div(v1mv);
+
+        // add them both up
+        v1et.add(v2et);
+
+        // and multiply the result by the absolute value of the product.
+        UNumber absProd = new UNumber(measuredValue);
+        absProd.abs();
+        v1et.mpy(absProd);
+
+        // Now put the error term back.
+        this.errorTerm = v1et;
+
 		errorMessage = "";
 	}
 
-	public void div(CalculatorValue v) {
+	void div(CalculatorValue v) {
 	    if(v.measuredValue.isZero()) {
 	        errorMessage = "***Error***: Division by zero!";
 	        return;
@@ -341,10 +369,40 @@ public class CalculatorValue {
 
         measuredValue.div(v.measuredValue);
 	    myUnit.div(v.getMyUnit());
+
+        // Calculate the error term product.
+        UNumber v1mv = new UNumber(this.measuredValue),
+                v1et = new UNumber(this.errorTerm),
+                v2mv = new UNumber(v.measuredValue),
+                v2et = new UNumber(v.errorTerm);
+
+        // Absolute value of the first value
+        v1mv.abs();
+
+        // v1et now contains the v1 error fraction...
+        v1et.div(v1mv);
+
+        // Absolute value of the second value
+        v2mv.abs();
+
+        // ... and so does v2et
+        v2et.div(v1mv);
+
+        // add them both up
+        v1et.add(v2et);
+
+        // and multiply the result by the absolute value of the product.
+        UNumber absQuot = new UNumber(measuredValue);
+        absQuot.abs();
+        v1et.mpy(absQuot);
+
+        // Now put the error term back.
+        this.errorTerm = v1et;
+
 		errorMessage = "";
 	}
 
-	public void sqrt() {
+	void sqrt() {
 	    if (measuredValue.isNegative()) {
 	        errorMessage = "***Error***: Square root of negative number!";
 	        return;
@@ -354,6 +412,27 @@ public class CalculatorValue {
 //        measuredValue =  UNumber(0);
 		measuredValue.sqrt();
 	    myUnit.sqrt();
+
+        UNumber v1mv = new UNumber(this.measuredValue),
+                v1et = new UNumber(this.errorTerm);
+
+        // Absolute value of the first value
+        v1mv.abs();
+
+        // v1et now contains the v1 error fraction...
+        v1et.div(v1mv);
+
+        // Multiply the error fraction with the absolute value of the square root.
+        UNumber absSqrt = new UNumber(measuredValue);
+        absSqrt.abs();
+        v1et.mpy(absSqrt);
+
+        // And now divide the whole thing by 2.
+        UNumber two = new UNumber(2);
+        v1et.div(two);
+
+        this.errorTerm = v1et;
+
 	    errorMessage = "";
     }
 }
