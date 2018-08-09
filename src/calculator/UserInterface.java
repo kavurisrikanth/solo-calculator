@@ -11,8 +11,6 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
-import calculator.BusinessLogic;
-import javafx.scene.text.Text;
 import javafx.util.StringConverter;
 
 import java.util.stream.Collectors;
@@ -33,18 +31,6 @@ import java.util.stream.IntStream;
  */
 
 public class UserInterface {
-	
-	/**********************************************************************************************
-
-	Attributes
-	
-	**********************************************************************************************/
-	
-	/* Constants used to parameterize the graphical user interface.  We do not use a layout manager for
-	   this application. Rather we manually control the location of each graphical element for exact
-	   control of the look and feel. */
-	private final double BUTTON_WIDTH = 60;
-	private final double BUTTON_OFFSET = BUTTON_WIDTH / 2;
 
     private Label label_Operand1 = new Label("First operand");
 	private TextField text_Operand1 = new TextField();
@@ -72,11 +58,10 @@ public class UserInterface {
 	private double buttonSpace;		// This is the white space between the operator buttons.
 
 	private double textFieldWidth = Calculator.WINDOW_WIDTH * 40.0 / 100;
-	ObservableList<Integer> numbers =
+	private ObservableList<Integer> numbers =
             FXCollections.observableArrayList(IntStream.rangeClosed(-16, 16).boxed().collect(Collectors.toList()));
 
-	private double comboBoxWidth = 70;
-	private ComboBox<Integer> operand1_MassComboBox = new ComboBox<>(numbers),
+    private ComboBox<Integer> operand1_MassComboBox = new ComboBox<>(numbers),
             operand1_TimeComboBox = new ComboBox<>(numbers),
             operand1_LengthComboBox = new ComboBox<>(numbers),
             operand2_MassComboBox = new ComboBox<>(numbers),
@@ -110,28 +95,35 @@ public class UserInterface {
             operand2_errorTerm = new TextField(),
             result_ErrorTerm = new TextField();
 
- 	private double labelBuffer = 18;
-
- 	private double theTopY = 10,
-            op1TopY = theTopY + 30,
-            op2TopY = op1TopY + 95,
-            resultTopY = op2TopY + 95,
-            buttonsY = resultTopY + 100,
-            theLeftX = 10;
+ 	// Doubles used for setting up the UI. The co-ordinates and widths.
+ 	private double
+            labelBuffer             = 18,
+            theTopY                 = 10,
+            op1TopY                 = theTopY + 30,
+            op2TopY                 = op1TopY + 95,
+            op1EditablesY           = op1TopY + 30,
+            op2EditablesY           = op2TopY + 30,
+            resultTopY              = op2TopY + 95,
+            resultDisplayY          = resultTopY + 30,
+            buttonsY                = resultTopY + 100,
+            theLeftX                = 10,
+            errorTermTextFieldWidth = Calculator.WINDOW_WIDTH * 0.2,
+            partOneEndX             = textFieldWidth,
+            partTwoStartX           = partOneEndX + labelBuffer,
+            unitsStartX             = partTwoStartX + 2 * labelBuffer + errorTermTextFieldWidth;
 
     private Label label_plusMinus_One   = new Label("\u00B1"),
                   label_plusMinus_Two   = new Label("\u00B1"),
                   label_plusMinus_Three = new Label("\u00B1");
 
     /* This is the link to the business logic */
-	public BusinessLogic perform = new BusinessLogic();
+    private BusinessLogic perform = new BusinessLogic();
 
 	
-	/**********************************************************************************************
-
+	/*
 	Constructors
-	
-	**********************************************************************************************/
+	*/
+
 
 	/**********
 	 * This method initializes all of the elements of the graphical user interface. These assignments
@@ -155,33 +147,23 @@ public class UserInterface {
         setupComboBoxes();
 
         // Setup operand 1 stuff
-        setupOperand1Stuff();
+        setupOperand1Stuff(theRoot);
 
 		// Setup operand 2 stuff
-        setupOperand2Stuff();
+        setupOperand2Stuff(theRoot);
 
         // Setup results stuff
-        setupResultStuff();
+        setupResultStuff(theRoot);
+
+        // Setup units and error terms. Separated to allow for checkboxes later.
+        setupErrorTerms(theRoot);
+        setupUnits(theRoot);
 
         // Finally, setup buttons.
-        setupButtons();
+        setupButtons(theRoot);
 		
 		// Place all of the just-initialized GUI elements into the pane
-		theRoot.getChildren().addAll(label_IntegerCalculator,
-                label_Operand1, text_Operand1, label_errOperand1,
-				label_Operand2, text_Operand2, label_errOperand2,
-                label_Result, text_Result, label_errResult,
-				button_Add, button_Sub, button_Mpy, button_Div, button_Sqrt, button_Clr, button_MoveToFirst,
-                operand1_MassComboBox, operand1_LengthComboBox, operand1_TimeComboBox,
-                label_plusMinus_One, label_plusMinus_Two, label_plusMinus_Three,
-                operand1_errorTerm, operand1_ErrorTermLabel, operand2_errorTerm, operand2_ErrorTermLabel,
-                operand1_MassLabel, operand1_LengthLabel, operand1_TimeLabel, operand1_UnitsLabel,
-                operand2_MassComboBox, operand2_LengthComboBox, operand2_TimeComboBox,
-                operand2_MassLabel, operand2_LengthLabel, operand2_TimeLabel, operand2_UnitsLabel,
-                result_MassValueText, result_LengthValueText, result_TimeValueText,
-                result_MassLabel, result_LengthLabel, result_TimeLabel, result_UnitsLabel,
-                result_ErrorTerm,
-                result_ErrorTermLabel);
+		theRoot.getChildren().addAll(label_IntegerCalculator);
 
 	}
 
@@ -190,10 +172,10 @@ public class UserInterface {
     }
 
 	private void setupComboBoxes() {
-        operand1_MassComboBox.setConverter(new StringConverter<Integer>() {
+        operand1_MassComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -218,10 +200,10 @@ public class UserInterface {
             }
         });
 
-        operand1_TimeComboBox.setConverter(new StringConverter<Integer>() {
+        operand1_TimeComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -232,10 +214,10 @@ public class UserInterface {
             }
         });
 
-        operand2_MassComboBox.setConverter(new StringConverter<Integer>() {
+        operand2_MassComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -246,10 +228,10 @@ public class UserInterface {
             }
         });
 
-        operand2_LengthComboBox.setConverter(new StringConverter<Integer>() {
+        operand2_LengthComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -260,10 +242,10 @@ public class UserInterface {
             }
         });
 
-        operand2_TimeComboBox.setConverter(new StringConverter<Integer>() {
+        operand2_TimeComboBox.setConverter(new StringConverter<>() {
             @Override
             public String toString(Integer object) {
-                if(object == null)
+                if (object == null)
                     return null;
                 return object.toString();
             }
@@ -275,14 +257,10 @@ public class UserInterface {
         });
     }
 
-	private void setupOperand1Stuff() {
+	private void setupOperand1Stuff(Pane theRoot) {
 
         // Label the first operand just above it, left aligned
         setupLabelUI(label_Operand1, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, op1TopY);
-
-        double partOneEndX = textFieldWidth,
-                partTwoStartX = partOneEndX + labelBuffer,
-                op1EditablesY = op1TopY + 30;
 
         // Establish the first text input operand field and when anything changes in operand 1,
         // process both fields to ensure that we are ready to perform as soon as possible.
@@ -292,34 +270,111 @@ public class UserInterface {
             enableButtonsIfDisabled();
         });
         // Move focus to the second operand when the user presses the enter (return) key
-        text_Operand1.setOnAction((event) -> { text_Operand2.requestFocus(); });
+        text_Operand1.setOnAction((event) -> text_Operand2.requestFocus());
 
-        /*
-        The error terms now...
+        double op1ErrorsY = op1EditablesY + 35;
+
+        // Establish an error message for the first operand just above it with, left aligned
+        setupLabelUI(label_errOperand1, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op1ErrorsY);
+        label_errOperand1.setTextFill(Color.RED);
+
+        theRoot.getChildren().addAll(label_Operand1, text_Operand1, label_errOperand1);
+    }
+
+    private void setupOperand2Stuff(Pane theRoot) {
+        // Label the second operand just above it, left aligned
+        setupLabelUI(label_Operand2, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, op2TopY);
+
+        // Establish the second text input operand field and when anything changes in operand 2,
+        // process both fields to ensure that we are ready to perform as soon as possible.
+        setupTextUI(text_Operand2, "Arial", 18, textFieldWidth, Pos.BASELINE_LEFT, theLeftX, op2EditablesY, true);
+        text_Operand2.textProperty().addListener((observable, oldValue, newValue) -> {
+            setOperand2();
+            enableButtonsIfDisabled();
+        });
+        // Move the focus to the result when the user presses the enter (return) key
+        text_Operand2.setOnAction((event) -> text_Result.requestFocus());
+
+        double op2ErrorsY = op2EditablesY + 35;
+
+        // Establish an error message for the second operand just above it with, left aligned
+        setupLabelUI(label_errOperand2, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op2ErrorsY);
+        label_errOperand2.setTextFill(Color.RED);
+
+        theRoot.getChildren().addAll(label_Operand2, text_Operand2, label_errOperand2);
+    }
+
+    private void setupResultStuff(Pane theRoot) {
+        // Label the result just above the result output field, left aligned
+        setupLabelUI(label_Result, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, resultTopY);
+
+        // Establish the result output field.  It is not editable, so the text can be selected and copied,
+        // but it cannot be altered by the user.  The text is left aligned.
+        setupTextUI(text_Result, "Arial", 18, textFieldWidth, Pos.BASELINE_LEFT, 10, resultDisplayY, false);
+
+        double resultErrorsY = resultDisplayY + 30;
+
+        // Establish an error message for the second operand just above it with, left aligned
+        setupLabelUI(label_errResult, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 400, resultErrorsY);
+        label_errResult.setTextFill(Color.RED);
+
+        theRoot.getChildren().addAll(label_Result, text_Result, label_errResult);
+    }
+
+    private void setupErrorTerms(Pane theRoot) {
+	    /*
+        The error terms for operand 1
          */
-        double errorsStartX = partTwoStartX,
-                errorTermTextFieldWidth = Calculator.WINDOW_WIDTH * 0.2;
 
         // Setup Label
-        setupLabelUI(operand1_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op1TopY);
+        setupLabelUI(operand1_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, op1TopY);
 
-        setupLabelUI(label_plusMinus_One, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX, op1EditablesY);
-        setupTextUI(operand1_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op1EditablesY, true);
+        setupLabelUI(label_plusMinus_One, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX, op1EditablesY);
+        setupTextUI(operand1_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, op1EditablesY, true);
 
-        operand1_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> {
-            setOperand1();
-        });
+        operand1_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> setOperand1());
 
         /*
-         Now the units...
+        The error terms for operand 2
+         */
+
+        // Setup Label
+        setupLabelUI(operand2_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, op2TopY);
+
+        setupLabelUI(label_plusMinus_Two, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX, op2EditablesY);
+        setupTextUI(operand2_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, op2EditablesY, true);
+
+        operand2_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> setOperand2());
+
+        /*
+        Error terms for the result
+         */
+        setupLabelUI(result_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, resultTopY);
+
+        setupLabelUI(label_plusMinus_Three, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, partTwoStartX, resultDisplayY);
+        setupTextUI(result_ErrorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, partTwoStartX + labelBuffer, resultDisplayY, false);
+
+        /*
+        * Add all the elements to the root.
+        */
+        theRoot.getChildren().addAll(
+                operand1_errorTerm, operand1_ErrorTermLabel, label_plusMinus_One,
+                operand2_errorTerm, operand2_ErrorTermLabel, label_plusMinus_Two,
+                result_ErrorTerm, result_ErrorTermLabel, label_plusMinus_Three
+        );
+    }
+
+    private void setupUnits(Pane theRoot) {
+	    /*
+         Units for operand 1
           */
-        double unitsStartX = errorsStartX + 2 * labelBuffer + errorTermTextFieldWidth;
 
         // Set up the label for the first operand's units.
         setupLabelUI(operand1_UnitsLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, unitsStartX, op1TopY);
 
         // Setup operand 1 combo boxes and labels
         setupLabelUI(operand1_MassLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, unitsStartX, op1EditablesY);
+        double comboBoxWidth = 70;
         setupComboBoxUI(operand1_MassComboBox, comboBoxWidth, unitsStartX + labelBuffer, op1EditablesY, true);
 
         setupLabelUI(operand1_LengthLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, unitsStartX + 2 * labelBuffer + comboBoxWidth, op1EditablesY);
@@ -332,61 +387,13 @@ public class UserInterface {
         operand1_LengthComboBox.getSelectionModel().select(16);
         operand1_TimeComboBox.getSelectionModel().select(16);
 
-        operand1_MassComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand1();
-        });
-        operand1_LengthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand1();
-        });
-        operand1_TimeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand1();
-        });
+        operand1_MassComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand1());
+        operand1_LengthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand1());
+        operand1_TimeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand1());
 
-        double op1ErrorsY = op1EditablesY + 35;
-
-        // Establish an error message for the first operand just above it with, left aligned
-        setupLabelUI(label_errOperand1, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op1ErrorsY);
-        label_errOperand1.setTextFill(Color.RED);
-    }
-
-    private void setupOperand2Stuff() {
-        // Label the second operand just above it, left aligned
-        setupLabelUI(label_Operand2, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, op2TopY);
-
-        double op2EditablesY = op2TopY + 30,
-                partOneEndX = textFieldWidth,
-                partTwoStartX = partOneEndX + labelBuffer;
-
-        // Establish the second text input operand field and when anything changes in operand 2,
-        // process both fields to ensure that we are ready to perform as soon as possible.
-        setupTextUI(text_Operand2, "Arial", 18, textFieldWidth, Pos.BASELINE_LEFT, theLeftX, op2EditablesY, true);
-        text_Operand2.textProperty().addListener((observable, oldValue, newValue) -> {
-            setOperand2();
-            enableButtonsIfDisabled();
-        });
-        // Move the focus to the result when the user presses the enter (return) key
-        text_Operand2.setOnAction((event) -> { text_Result.requestFocus(); });
-
-        /*
-        The error terms now...
-         */
-        double errorsStartX = partTwoStartX,
-                errorTermTextFieldWidth = Calculator.WINDOW_WIDTH * 0.2;
-
-        // Setup Label
-        setupLabelUI(operand2_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op2TopY);
-
-        setupLabelUI(label_plusMinus_Two, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX, op2EditablesY);
-        setupTextUI(operand2_errorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, op2EditablesY, true);
-
-        operand2_errorTerm.textProperty().addListener((observable, oldValue, newValue) -> {
-            setOperand2();
-        });
-
-        /*
-         Now the units...
+	    /*
+         Units for operand 2
           */
-        double unitsStartX = errorsStartX + 2 * labelBuffer + errorTermTextFieldWidth;
 
         // Set up the label for the second operand's units.
         setupLabelUI(operand2_UnitsLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, unitsStartX, op2TopY);
@@ -405,49 +412,12 @@ public class UserInterface {
         operand2_LengthComboBox.getSelectionModel().select(16);
         operand2_TimeComboBox.getSelectionModel().select(16);
 
-        operand2_MassComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand2();
-        });
-        operand2_LengthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand2();
-        });
-        operand2_TimeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> {
-            setOperand2();
-        });
+        operand2_MassComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand2());
+        operand2_LengthComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand2());
+        operand2_TimeComboBox.valueProperty().addListener((obs, oldVal, newVal) -> setOperand2());
 
-        double op2ErrorsY = op2EditablesY + 35;
-
-        // Establish an error message for the second operand just above it with, left aligned
-        setupLabelUI(label_errOperand2, "Arial", 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op2ErrorsY);
-        label_errOperand2.setTextFill(Color.RED);
-    }
-
-    private void setupResultStuff() {
-        // Label the result just above the result output field, left aligned
-        setupLabelUI(label_Result, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, resultTopY);
-
-        double resultDisplayY = resultTopY + 30,
-                partOneEndX = textFieldWidth,
-                partTwoStartX = partOneEndX + labelBuffer,
-                errorsStartX = partTwoStartX,
-                errorTermTextFieldWidth = Calculator.WINDOW_WIDTH * 0.2,
-                unitsStartX = errorsStartX + 2 * labelBuffer + errorTermTextFieldWidth;
-
-        // Establish the result output field.  It is not editable, so the text can be selected and copied,
-        // but it cannot be altered by the user.  The text is left aligned.
-        setupTextUI(text_Result, "Arial", 18, textFieldWidth, Pos.BASELINE_LEFT, 10, resultDisplayY, false);
-
-        setupLabelUI(label_plusMinus_Three, "Arial", 26, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX, resultDisplayY);
-
-        /*
-        Error terms
-         */
-        setupLabelUI(result_ErrorTermLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, resultTopY);
-
-        setupTextUI(result_ErrorTerm, "Arial", 18, errorTermTextFieldWidth, Pos.BASELINE_LEFT, errorsStartX + labelBuffer, resultDisplayY, false);
-
-        /*
-        Units
+	    /*
+        Units for result
          */
         // Set up the label for the result's units.
         setupLabelUI(result_UnitsLabel, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, unitsStartX, resultTopY);
@@ -462,48 +432,63 @@ public class UserInterface {
         setupLabelUI(result_TimeLabel, "Arial", 16, textFieldWidth/3, Pos.BASELINE_LEFT, unitsStartX + 4 * labelBuffer + 2 * comboBoxWidth, resultDisplayY);
         setupTextUI(result_TimeValueText, "Arial", 18, comboBoxWidth, Pos.BASELINE_LEFT, unitsStartX + 5 * labelBuffer + 2 * comboBoxWidth, resultDisplayY, false);
 
-        double resultErrorsY = resultDisplayY + 30;
-
-        // Establish an error message for the second operand just above it with, left aligned
-        setupLabelUI(label_errResult, "Arial", 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 400, resultErrorsY);
-        label_errResult.setTextFill(Color.RED);
+        theRoot.getChildren().addAll(
+                operand1_MassComboBox, operand1_LengthComboBox, operand1_TimeComboBox,
+                operand2_MassComboBox, operand2_LengthComboBox, operand2_TimeComboBox,
+                result_MassValueText, result_LengthValueText, result_TimeValueText,
+                operand1_MassLabel, operand1_LengthLabel, operand1_TimeLabel, operand1_UnitsLabel,
+                operand2_MassLabel, operand2_LengthLabel, operand2_TimeLabel, operand2_UnitsLabel,
+                result_MassLabel, result_LengthLabel, result_TimeLabel, result_UnitsLabel
+        );
     }
 
-    private void setupButtons() {
+    private void setupButtons(Pane theRoot) {
+        /*
+         Attributes
+        */
+
+        double BUTTON_WIDTH = 60;
+        double BUTTON_OFFSET = BUTTON_WIDTH / 2;
+
         // Establish the ADD "+" button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Add, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 1 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Add.setOnAction((event) -> { addOperands(); });
+        setupButtonUI(button_Add, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 1 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Add.setOnAction((event) -> addOperands());
         button_Add.setDisable(true);    // Start off with button disabled.
 
         // Establish the SUB "-" button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Sub, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 2 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Sub.setOnAction((event) -> { subOperands(); });
+        setupButtonUI(button_Sub, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 2 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Sub.setOnAction((event) -> subOperands());
         button_Sub.setDisable(true);    // Start off with button disabled.
 
         // Establish the MPY "x" button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Mpy, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 3 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Mpy.setOnAction((event) -> { mpyOperands(); });
+        setupButtonUI(button_Mpy, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 3 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Mpy.setOnAction((event) -> mpyOperands());
         button_Mpy.setDisable(true);    // Start off with button disabled.
 
         // Establish the DIV "/" button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Div, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 4 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Div.setOnAction((event) -> { divOperands(); });
+        setupButtonUI(button_Div, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 4 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Div.setOnAction((event) -> divOperands());
         button_Div.setDisable(true);    // Start off with button disabled.
 
         // Establish the SQRT button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Sqrt, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 5 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Sqrt.setOnAction((event) -> { sqrtOperands(); });
+        setupButtonUI(button_Sqrt, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 5 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Sqrt.setOnAction((event) -> sqrtOperands());
         button_Sqrt.setDisable(true);    // Start off with button disabled.
 
         // Establish the CLR button, position it, and link it to methods to accomplish its work
-        setupButtonUI(button_Clr, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 6 * buttonSpace-BUTTON_OFFSET, buttonsY);
-        button_Clr.setOnAction((event) -> { clearAll(); });
+        setupButtonUI(button_Clr, "Symbol", 32, BUTTON_WIDTH, Pos.BASELINE_LEFT, 6 * buttonSpace- BUTTON_OFFSET, buttonsY);
+        button_Clr.setOnAction((event) -> clearAll());
         button_Clr.setDisable(true);    // Start off with button disabled.
 
         // Establish the Move to First button, position it, and link it to methods to accomplish its work
         setupButtonUI(button_MoveToFirst, "Symbol", 14, BUTTON_WIDTH, Pos.BASELINE_LEFT, 160, op2TopY - 5);
-        button_MoveToFirst.setOnAction((event) -> { moveSecondToFirst(); });
+        button_MoveToFirst.setOnAction((event) -> moveSecondToFirst());
         button_MoveToFirst.setDisable(true);    // Start off with button disabled.
+
+        theRoot.getChildren().addAll(
+                button_Add, button_Sub, button_Mpy, button_Div,
+                button_Sqrt, button_Clr, button_MoveToFirst
+        );
     }
 
     /**********
@@ -665,11 +650,9 @@ public class UserInterface {
     }
 	
 	
-	/**********************************************************************************************
-
+	/*
 	User Interface Actions
-	
-	**********************************************************************************************/
+	*/
 
 	/**********
 	 * Private local method to set the value of the first operand given a text value. The method uses the
@@ -780,7 +763,7 @@ public class UserInterface {
         return false;											// Signal there are no issues with the operands
     }
 
-	/*******************************************************************************************************
+	/*
 	 * This portion of the class defines the actions that take place when the various calculator
 	 * buttons (add, subtract, multiply, and divide) are pressed.
 	 */
