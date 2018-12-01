@@ -1,8 +1,6 @@
 
 package calculator;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Pos;
@@ -106,23 +104,19 @@ public class UserInterface {
             resultTopY              = op2TopY + 95,
             resultDisplayY          = resultTopY + 30,
             buttonsY                = resultTopY + 100,
-            theLeftX                = 10,
+            theLeftX                = 18,
             errorTermTextFieldWidth = Calculator.WINDOW_WIDTH * 0.2,
             partOneEndX             = textFieldWidth + theLeftX,
-            partTwoStartX           = partOneEndX + labelBuffer,
+            partTwoStartX           = partOneEndX,
             unitsStartX             = partTwoStartX + 2 * labelBuffer + errorTermTextFieldWidth;
 
+ 	// Labels for error terms (the plus/minus signs)
     private Label label_plusMinus_One   = new Label("\u00B1"),
                   label_plusMinus_Two   = new Label("\u00B1"),
                   label_plusMinus_Three = new Label("\u00B1");
 
+    // Variable to hold the font. Makes it easier to change later.
     private String labelFont = "Tahoma";
-
-    private CheckBox errorsCheckBox = new CheckBox("Errors"),
-                     unitsCheckBox  = new CheckBox("Units");
-
-    private boolean includeErrors = false,
-                    includeUnits  = false;
 
     /* This is the link to the business logic */
     private BusinessLogic perform = new BusinessLogic();
@@ -145,13 +139,20 @@ public class UserInterface {
 
         // Label theScene with the name of the calculator, centered at the top of the pane
         // These are the application values required by the user interface
-        Label label_IntegerCalculator = new Label("ZCalculator");
+        Label label_IntegerCalculator = new Label("Astronomical Calculator");
         setupLabelUI(label_IntegerCalculator, labelFont, 24, Calculator.WINDOW_WIDTH, Pos.CENTER, 0, theTopY);
 
-        // Add checkboxes here for toggling units display
-        // setupCheckBoxes(theRoot);
+        // Setup operand 1 stuff
+        setupOperands(theRoot);
 
-        setupUIStuff(theRoot);
+        // Setup results stuff
+        setupResults(theRoot);
+
+        setupErrorTerms(theRoot);
+        setupUnits(theRoot);
+
+        // Set up string converters for combo boxes.
+        setupComboBoxes();
 
         // Finally, setup buttons.
         setupButtons(theRoot);
@@ -160,80 +161,6 @@ public class UserInterface {
 		theRoot.getChildren().addAll(label_IntegerCalculator);
 
 	}
-
-
-    /**
-     * Set up the basic UI.
-     * @param theRoot - The pane on which everything sits.
-     */
-	private void setupUIStuff(Pane theRoot) {
-        // Okay, here we go! Let's set up the check boxes and their functions.
-        if (false) {
-            if (includeUnits || includeErrors) {
-                if (includeUnits && includeErrors) {
-                    setupUnits(theRoot);
-                    setupErrorTerms(theRoot);
-                } else {
-                    textFieldWidth = Calculator.WINDOW_WIDTH / 2 - 10;
-
-                    // Setup units and error terms. Separated to allow for checkboxes later.
-                    if (includeErrors) {
-                        setupErrorTerms(theRoot);
-                    }
-
-                    if (includeUnits) {
-                        setupUnits(theRoot);
-                    }
-                }
-            } else
-                textFieldWidth = Calculator.WINDOW_WIDTH * 98.0 / 100;
-        }
-
-        textFieldWidth = Calculator.WINDOW_WIDTH / 2 - 80;
-        setupErrorTerms(theRoot);
-        setupUnits(theRoot);
-
-        // Set up string converters for combo boxes.
-        setupComboBoxes();
-
-        // Setup operand 1 stuff
-        setupOperand1Stuff(theRoot);
-
-        // Setup operand 2 stuff
-        setupOperand2Stuff(theRoot);
-
-        // Setup results stuff
-        setupResultStuff(theRoot);
-    }
-
-	private void setupCheckBoxes(Pane theRoot) {
-	    double checkBoxBuffer = Calculator.WINDOW_WIDTH/10,
-                checkBoxWidth = Calculator.WINDOW_WIDTH/5;
-
-	    errorsCheckBox.setAllowIndeterminate(false);
-	    unitsCheckBox.setAllowIndeterminate(false);
-
-	    setupCheckBoxUI(errorsCheckBox, labelFont, 15, checkBoxWidth, theLeftX + 2 * checkBoxBuffer, checkBoxesY);
-        setupCheckBoxUI(unitsCheckBox, labelFont, 15, checkBoxWidth, theLeftX + checkBoxWidth + 2 * checkBoxBuffer, checkBoxesY);
-
-        errorsCheckBox.selectedProperty().addListener(
-                (observable, oldValue, newValue) -> {
-                    includeErrors = newValue;
-                    // Call method here.
-                    setupUIStuff(theRoot);
-                }
-        );
-
-        unitsCheckBox.selectedProperty().addListener(
-                ((observable, oldValue, newValue) -> {
-                    includeUnits = newValue;
-                    // Call method here.
-                    setupUIStuff(theRoot);
-                })
-        );
-
-        theRoot.getChildren().addAll(errorsCheckBox, unitsCheckBox);
-    }
 
     /**
      * This method sets up combo boxes for the units.
@@ -326,9 +253,12 @@ public class UserInterface {
 
     /**
      * This method sets up labels and text boxes for operand 1.
-     * @param theRoot
+     * @param theRoot - The root of the stage. All added elements are children of the root.
      */
-	private void setupOperand1Stuff(Pane theRoot) {
+	private void setupOperands(Pane theRoot) {
+        /*
+            First, setup operand 1.
+         */
 
         // Label the first operand just above it, left aligned
         setupLabelUI(label_Operand1, labelFont, 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, op1TopY);
@@ -350,10 +280,11 @@ public class UserInterface {
         setupLabelUI(label_errOperand1, labelFont, 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op1ErrorsY);
         label_errOperand1.setTextFill(Color.RED);
 
-        theRoot.getChildren().addAll(label_Operand1, text_Operand1, label_errOperand1);
-    }
 
-    private void setupOperand2Stuff(Pane theRoot) {
+        /*
+            Operand 1 done. Now setup operand 2.
+         */
+
         // Label the second operand just above it, left aligned
         setupLabelUI(label_Operand2, labelFont, 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, op2TopY);
 
@@ -373,16 +304,22 @@ public class UserInterface {
         setupLabelUI(label_errOperand2, labelFont, 16, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, 10, op2ErrorsY);
         label_errOperand2.setTextFill(Color.RED);
 
-        theRoot.getChildren().addAll(label_Operand2, text_Operand2, label_errOperand2);
+        theRoot.getChildren().addAll(label_Operand1, text_Operand1, label_errOperand1,
+                                     label_Operand2, text_Operand2, label_errOperand2);
     }
 
-    private void setupResultStuff(Pane theRoot) {
+    private void setupResults(Pane theRoot) {
+	    /*
+	        Just like operands 1 and 2, setup results. The only difference is that the TextBoxes
+	        are not editable.
+	     */
+
         // Label the result just above the result output field, left aligned
         setupLabelUI(label_Result, labelFont, 18, Calculator.WINDOW_WIDTH-10, Pos.BASELINE_LEFT, theLeftX, resultTopY);
 
         // Establish the result output field.  It is not editable, so the text can be selected and copied,
         // but it cannot be altered by the user.  The text is left aligned.
-        setupTextUI(text_Result, labelFont, 18, textFieldWidth, Pos.BASELINE_LEFT, 10, resultDisplayY, false);
+        setupTextUI(text_Result, labelFont, 18, textFieldWidth, Pos.BASELINE_LEFT, theLeftX, resultDisplayY, false);
 
         double resultErrorsY = resultDisplayY + 30;
 
