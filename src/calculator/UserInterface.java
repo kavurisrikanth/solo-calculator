@@ -514,14 +514,18 @@ public class UserInterface {
      * Private local method to enable the five(?) buttons if they are disabled.
      */
 	private void enableButtonsIfDisabled() {
-        String one = text_Operand1.getText(),
-                two = text_Operand2.getText();
+        String operand1Text = text_Operand1.getText(),
+                operand2Text = text_Operand2.getText(),
+                operand1ErrorTermText = operand1_errorTerm.getText(),
+                operand2ErrorTermText = operand2_errorTerm.getText(),
+                resultText = text_Result.getText(),
+                resultErrorTermText = result_ErrorTerm.getText();
 
         /*
          * A bit of a special case. If there is nothing in the second operand text bar,
          * then enabling this button makes no sense.
          */
-        if (!two.isEmpty()) {
+        if (!resultText.isEmpty() && ! resultErrorTermText.isEmpty()) {
             if (button_MoveToFirst.isDisabled())
                 button_MoveToFirst.setDisable(false);
         } else {
@@ -529,9 +533,9 @@ public class UserInterface {
                 button_MoveToFirst.setDisable(true);
         }
 
-        if (!one.isEmpty() || !two.isEmpty()) {
+        if (!operand1Text.isEmpty() || !operand1ErrorTermText.isEmpty() || !operand2Text.isEmpty() || !operand2ErrorTermText.isEmpty()) {
             /*
-             * If either of the text boxes has something in it, then enable all disabled buttons.
+             * If any of the text boxes has something in it, then enable all disabled buttons.
              */
             if (button_Add.isDisabled())
                 button_Add.setDisable(false);
